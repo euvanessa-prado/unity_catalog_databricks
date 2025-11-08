@@ -1,4 +1,4 @@
-# 🏛️ Unity Catalog Databricks - Workshop Prático Completo
+# 🏛️ Unity Catalog Databricks
 
 ## 📋 Sobre o Projeto
 
