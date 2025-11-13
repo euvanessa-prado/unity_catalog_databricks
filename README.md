@@ -1,4 +1,4 @@
-# 🏛️ Unity Catalog Databricks - Workshop Prático Completo
+# 🏛️ Unity Catalog Databricks
 
 ## 📋 Sobre o Projeto
 
@@ -52,7 +52,23 @@ Unity Catalog
 │   ├── silver/                    # Dados tratados
 │   └── gold/                      # Dados negócio
 ```
+            ┌───────────────────────────────┐
+            │           Metastore           │
+            └───────────────┬───────────────┘
+                            │
+            ┌───────────────────────────────┐
+            │            Catalog            │
+            └───────────────┬───────────────┘
+                            │
+            ┌──────────────────────────────────────────────────┐
+            │            Schema / DB                           │
+            └───────┬────────┬────────┬──────────┬──────────┬──┘
+                    │        │        │          │          │  
+                ┌───┴───┐ ┌──┴───┐ ┌──┴───┐ ┌────┴───┐ ┌────┴───┐
+                │ Table │ │ View │ │Volume│ │Function│ │ Model  │
+                └───────┘ └──────┘ └──────┘ └────────┘ └────────┘
 
+     ```
 ## 🚀 Funcionalidades Implementadas
 
 ### 📊 Catálogo e Schemas
@@ -523,8 +539,7 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👩‍💻 Autora
-
+## 👩‍💻
 **Vanessa Prado**
 - 🔗 LinkedIn: [vanessa-aida](https://www.linkedin.com/in/vanessa-aida/)
 - 🐙 GitHub: [@euvanessa-prado](https://github.com/euvanessa-prado)
