@@ -17,21 +17,40 @@ O projeto aborda desde conceitos fundamentais até implementações avançadas d
 - ✅ Criar funções personalizadas no Unity Catalog
 - ✅ Aplicar Machine Learning com PyTorch para classificação de imagens
 
-## 🏗️ Arquitetura
+## 🏗️ Arquitetura Unity Catalog
+
+```
+        ┌───────────────────────────────┐
+        │           Metastore           │
+        └───────────────┬───────────────┘
+                        │
+        ┌───────────────┴───────────────┐
+        │            Catalog            │
+        └───────────────┬───────────────┘
+                        │
+        ┌───────────────┴───────────────┐
+        │          Schema / DB          │
+        └─┬─────┬─────┬─────┬─────┬─────┘
+          │     │     │     │     │
+      ┌───┴──┐ ┌┴───┐ ┌┴────┐ ┌──┴───┐ ┌──┴───┐
+      │Table │ │View│ │Volume│ │Function│ │Model │
+      └──────┘ └────┘ └─────┘ └────────┘ └──────┘
+```
+
+## 🏗️ Arquitetura do Projeto
 
 ```
 Unity Catalog
 ├── demo_catalog/
-│   ├── bronze/                    # Dados brutos e heterogêneos
-│   │   ├── sales                  # Tabela de vendas (formato Delta)
-│   │   ├── image_predictions      # Predições de ML para imagens
-│   │   ├── vw_sales_summary       # View agregada de vendas
-│   │   ├── raw_files/             # Volume para arquivos brutos
-│   │   └── calc_bonus()           # Função para cálculo de bônus
-│   ├── silver/                    # Dados tratados e limpos
-│   │   └── [em desenvolvimento]
-│   └── gold/                      # Dados para consumo de negócio
-│       └── [em desenvolvimento]
+│   ├── bronze/                    # Dados brutos
+│   │   ├── sales                  # Tabela vendas
+│   │   ├── image_predictions      # Predições ML
+│   │   ├── vw_sales_summary       # View agregada
+│   │   ├── raw_files/             # Volume arquivos
+│   │   ├── calc_bonus()           # Função UDF
+│   │   └── image_classifier       # Modelo MLflow
+│   ├── silver/                    # Dados tratados
+│   └── gold/                      # Dados negócio
 ```
 
 ## 🚀 Funcionalidades Implementadas
@@ -56,11 +75,18 @@ Unity Catalog
 ### ⚙️ Funções Personalizadas
 - **calc_bonus()**: Função para cálculo de bônus baseado em percentual
 
+### 🤖 MLflow e Machine Learning
+- **Registro de Modelos**: Integração com Unity Catalog para versionamento
+- **Classificação de Imagens**: Modelo ResNet18 pré-treinado do PyTorch
+- **Tracking de Experimentos**: Logs de métricas, parâmetros e artefatos
+- **Model Registry**: Gerenciamento centralizado de modelos ML
+
 ## 🛠️ Tecnologias Utilizadas
 
 ![Databricks](https://img.shields.io/badge/Databricks-%23FF3621.svg?style=for-the-badge&logo=databricks&logoColor=white)
 ![Apache Spark](https://img.shields.io/badge/Apache%20Spark-E25A1C.svg?style=for-the-badge&logo=apachespark&logoColor=white)
 ![Delta Lake](https://img.shields.io/badge/Delta%20Lake-00ADD8.svg?style=for-the-badge&logo=deltalake&logoColor=white)
+![MLflow](https://img.shields.io/badge/MLflow-0194E2.svg?style=for-the-badge&logo=mlflow&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C.svg?style=for-the-badge&logo=pytorch&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)
 ![SQL](https://img.shields.io/badge/SQL-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -71,7 +97,7 @@ Unity Catalog
 - Workspace Databricks com Unity Catalog habilitado
 - Permissões de administrador ou criação de catálogos
 - Cluster Databricks Runtime 11.3 LTS ou superior
-- Bibliotecas: PIL, torch, torchvision
+- Bibliotecas: PIL, torch, torchvision, mlflow
 
 ### Execução
 1. **Clone o repositório**:
@@ -221,21 +247,28 @@ spark.createDataFrame([prediction]) \
      .saveAsTable("demo_catalog.bronze.image_predictions")
 ```
 
-### 9. 📄 Leitura de Múltiplos Formatos
+### 9. 📄 Leitura Completa de Múltiplos Formatos
 ```python
-# === Parquet ===
+# === Leitura com exibição detalhada ===
+# Parquet
 df_parquet = spark.read.parquet("/Volumes/demo_catalog/bronze/raw_files/dados.parquet")
+print("🟢 PARQUET:")
+df_parquet.show(truncate=False)
 
-# === CSV ===
+# CSV
 df_csv = (
     spark.read
     .option("header", True)
     .option("inferSchema", True)
     .csv("/Volumes/demo_catalog/bronze/raw_files/dados.csv")
 )
+print("🟢 CSV:")
+df_csv.show(truncate=False)
 
-# === JSON ===
+# JSON
 df_json = spark.read.json("/Volumes/demo_catalog/bronze/raw_files/dados.json")
+print("🟢 JSON:")
+df_json.show(truncate=False)
 ```
 
 ### 10. 🔍 Consultas e Filtros
@@ -274,6 +307,152 @@ SELECT
 FROM vw_parquet;
 ```
 
+### 13. 🔍 Consultas e Verificações
+```sql
+-- Verificar dados na tabela sales
+SELECT * FROM demo_catalog.bronze.sales;
+
+-- Consultar view de resumo de vendas
+SELECT * FROM demo_catalog.bronze.vw_sales_summary;
+
+-- Verificar predições de imagens
+SELECT * FROM demo_catalog.bronze.image_predictions;
+```
+
+### 14. 🖼️ Processamento de Imagens Completo
+```python
+# Visualizar imagem carregada
+from PIL import Image
+
+path = "/Volumes/demo_catalog/bronze/raw_files/gato.jpeg"
+img = Image.open(path)
+display(img)
+
+# Verificar propriedades da imagem
+print(img.format, img.size, img.mode)
+```
+
+### 15. 📊 Análise de Dados com PySpark
+```python
+# Exemplo de SELECT * (todos os dados)
+df_parquet.select("*").show()
+
+# Exemplo de SELECT específico
+df_parquet.select("id", "nome", "salario").show()
+
+# Exemplo com filtro (WHERE)
+df_parquet.filter(df_parquet.salario > 9000).select("nome", "salario").show()
+```
+
+### 17. 🔍 Comandos de Exploração do Unity Catalog
+```sql
+-- Listar catálogos disponíveis
+SHOW CATALOGS;
+
+-- Listar schemas em um catálogo
+SHOW SCHEMAS IN demo_catalog;
+
+-- Listar tabelas em um schema
+SHOW TABLES IN demo_catalog.bronze;
+
+-- Listar volumes em um schema
+SHOW VOLUMES IN demo_catalog.bronze;
+
+-- Listar funções em um schema
+SHOW FUNCTIONS IN demo_catalog.bronze;
+
+-- Descrever estrutura de uma tabela
+DESCRIBE TABLE demo_catalog.bronze.sales;
+
+-- Mostrar histórico de uma tabela Delta
+DESCRIBE HISTORY demo_catalog.bronze.sales;
+
+-- Mostrar detalhes de um volume
+DESCRIBE VOLUME demo_catalog.bronze.raw_files;
+```
+
+### 18. 📁 Comandos de Gerenciamento de Arquivos
+```python
+# Listar arquivos em um volume
+dbutils.fs.ls("/Volumes/demo_catalog/bronze/raw_files/")
+
+# Verificar se arquivo existe
+dbutils.fs.ls("/Volumes/demo_catalog/bronze/raw_files/gato.jpeg")
+
+# Copiar arquivo para volume (exemplo)
+# dbutils.fs.cp("source_path", "/Volumes/demo_catalog/bronze/raw_files/")
+```
+
+### 19. 🔄 Configuração de Contexto
+```sql
+-- Definir catálogo e schema padrão
+USE CATALOG demo_catalog;
+USE SCHEMA bronze;
+```
+
+### 20. 🤖 MLflow - Registro e Versionamento de Modelos
+```python
+import mlflow
+import mlflow.pytorch
+from torchvision import models
+
+# Configurar MLflow para usar Unity Catalog
+mlflow.set_registry_uri("databricks-uc")
+
+# Iniciar experimento MLflow
+mlflow.set_experiment("/Users/<seu-usuario>/image-classification-experiment")
+
+with mlflow.start_run():
+    # Carregar modelo pré-treinado
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    model.eval()
+    
+    # Log do modelo no MLflow
+    mlflow.pytorch.log_model(
+        pytorch_model=model,
+        artifact_path="resnet18_model",
+        registered_model_name="demo_catalog.bronze.image_classifier"
+    )
+    
+    # Log de métricas e parâmetros
+    mlflow.log_param("model_type", "ResNet18")
+    mlflow.log_param("pretrained", True)
+    mlflow.log_metric("accuracy", 0.95)  # Exemplo de métrica
+    
+    print("Modelo registrado no Unity Catalog via MLflow!")
+```
+
+### 21. 📊 Carregamento de Modelo do MLflow
+```python
+# Carregar modelo registrado do Unity Catalog
+model_name = "demo_catalog.bronze.image_classifier"
+model_version = "1"
+
+# Carregar modelo específico
+loaded_model = mlflow.pytorch.load_model(
+    model_uri=f"models:/{model_name}/{model_version}"
+)
+
+# Usar modelo carregado para predição
+with torch.no_grad():
+    logits = loaded_model(input_tensor)
+    probs = torch.nn.functional.softmax(logits, dim=1)[0]
+    
+print("Modelo carregado e executado com sucesso!")
+```
+
+### 22. 🔍 Gerenciamento de Modelos no Unity Catalog
+```sql
+-- Listar modelos registrados no catálogo
+SHOW MODELS IN demo_catalog.bronze;
+
+-- Descrever modelo específico
+DESCRIBE MODEL demo_catalog.bronze.image_classifier;
+
+-- Verificar versões do modelo
+SHOW MODEL VERSIONS demo_catalog.bronze.image_classifier;
+```
+
 ## 📊 Benefícios do Unity Catalog
 
 - **🔒 Segurança**: Controle de acesso centralizado e granular
@@ -304,8 +483,21 @@ FROM vw_parquet;
 - **Model Registry**: Versionamento de modelos
 
 ## 🔧 Instalação de Dependências
+
+### Bibliotecas Python Necessárias
 ```python
+# Instalar PyTorch e torchvision para processamento de imagens
 %pip install torch torchvision
+
+# Instalar MLflow para tracking e registro de modelos
+%pip install mlflow
+
+# Verificar instalação
+import torch
+import mlflow
+from torchvision import models, transforms
+print(f"PyTorch version: {torch.__version__}")
+print(f"MLflow version: {mlflow.__version__}")
 ```
 
 ## 🎓 Próximos Passos
@@ -315,7 +507,8 @@ FROM vw_parquet;
 - [ ] Adicionar data quality checks
 - [ ] Implementar pipelines automatizados
 - [ ] Configurar alertas e monitoramento
-- [ ] Integrar com MLflow para tracking de modelos
+- [ ] Expandir integração MLflow com Unity Catalog
+- [ ] Implementar A/B testing de modelos
 - [ ] Implementar streaming com Delta Live Tables
 
 ## 🤝 Contribuições
