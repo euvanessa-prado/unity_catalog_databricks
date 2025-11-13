@@ -17,24 +17,6 @@ O projeto aborda desde conceitos fundamentais até implementações avançadas d
 - ✅ Criar funções personalizadas no Unity Catalog
 - ✅ Aplicar Machine Learning com PyTorch para classificação de imagens
 
-## 🏗️ Arquitetura Unity Catalog
-
-```
-        ┌───────────────────────────────┐
-        │           Metastore           │
-        └───────────────┬───────────────┘
-                        │
-        ┌───────────────┴───────────────┐
-        │            Catalog            │
-        └───────────────┬───────────────┘
-                        │
-        ┌───────────────┴───────────────┐
-        │          Schema / DB          │
-        └─┬─────┬─────┬─────┬─────┬─────┘
-          │     │     │     │     │
-      ┌───┴──┐ ┌┴───┐ ┌┴────┐ ┌──┴───┐ ┌──┴───┐
-      │Table │ │View│ │Volume│ │Function│ │Model │
-      └──────┘ └────┘ └─────┘ └────────┘ └──────┘
 ```
 
 ## 🏗️ Arquitetura do Projeto
